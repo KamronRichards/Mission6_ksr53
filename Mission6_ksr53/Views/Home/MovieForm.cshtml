@@ -5,10 +5,21 @@
 
 <h1>Add a movie to the collection!</h1>
 
+<!--movie form-->
+
 <div>
     <form method="post">
-        <label asp-for="Category">Category</label>
-        <input asp-for="Category" />
+
+        <div asp-validation-summary="All"></div>
+
+        <label asp-for="CategoryID">Category</label>
+        <select asp-for="CategoryID">
+            <option value="">Category</option>
+            @foreach (Category m in ViewBag.Categorys)
+            {
+                <option value="@m.CategoryID">@m.CategoryName</option>
+            }
+        </select>
         <br />
         <label asp-for="Title">Title</label>
         <input asp-for="Title" />
@@ -32,6 +43,12 @@
             <option value="true">Yes</option>
             <option value="false">No</option>
         </select>
+        <br />
+        <label asp-for="Lentto">LentTo:</label>
+        <input asp-for="Lentto" />
+        <br />
+        <label asp-for="Notes">Notes</label>
+        <input asp-for="Notes" />
         <br />
         <button type="submit">Add Movie</button>
     </form>

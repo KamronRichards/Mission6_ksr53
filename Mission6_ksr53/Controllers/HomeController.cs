@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Mission6_ksr53.Models;
 using System;
@@ -11,14 +12,11 @@ namespace Mission6_ksr53.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private AddMovieContext daContext { get; set; }
 
-        private AddMovieContext context { get; set; }
-
-        public HomeController(ILogger<HomeController> logger, AddMovieContext someName)
+        public HomeController(AddMovieContext someName)
         {
-            _logger = logger;
-            context = someName;
+            daContext = someName;
         }
 
         public IActionResult Index()
@@ -28,31 +26,76 @@ namespace Mission6_ksr53.Controllers
         [HttpGet]
         public IActionResult MovieForm()
         {
+            ViewBag.Categorys = daContext.Categorys.ToList();
+
             return View();
         }
         [HttpPost]
         public IActionResult MovieForm(MovieResponse ar)
         {
-            context.Add(ar);
-            context.SaveChanges();
+            if (ModelState.IsValid)
+            {
+                daContext.Update(ar);
+                daContext.SaveChanges();
 
-            return View("Confirmation", ar);
+                return RedirectToAction("Collection");
+            }
+            else
+            {
+                ViewBag.Categorys = daContext.Categorys.ToList();
+                return View(ar);
+            }
+        }
 
+        [HttpGet]
+        public IActionResult Collection()
+        {
+            var movies = daContext.responses.Include(x => x.Category).OrderBy(x => x.Title).ToList();
+
+            return View(movies);
+        }
+
+        [HttpGet]
+        public IActionResult Edit(int movieid)
+        {
+            ViewBag.Categorys = daContext.Categorys.ToList();
+
+            var movie = daContext.responses.Single(x => x.MovieID == movieid);
+
+            return View("MovieForm", movie);
+        }
+        [HttpPost]
+        public IActionResult Edit(MovieResponse blah)
+        {
+            daContext.Update(blah);
+            daContext.SaveChanges();
+
+            return RedirectToAction("Collection");
+        }
+        [HttpGet]
+        public IActionResult Delete(int movieid)
+        {
+            var movie = daContext.responses.Single(x => x.MovieID == movieid);
+
+
+            return View(movie);
+        }
+        [HttpPost]
+        public IActionResult Delete(MovieResponse ar)
+        {
+            daContext.responses.Remove(ar);
+            daContext.SaveChanges();
+            return RedirectToAction("Collection");
         }
 
         public IActionResult Podcast()
         {
             return View();
         }
-        public IActionResult Privacy()
+
+        public IActionResult Confirmation()
         {
             return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
     }
