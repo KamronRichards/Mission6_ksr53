@@ -12,12 +12,22 @@ namespace Mission6_ksr53.Models
         [Key]
         [Required]
         public int MovieID { get; set; }
-        public string Category { get; set; }
+        [Required]
         public string Title { get; set; }
-        public int Year { get; set; }
+        [Required]
+        public int? Year { get; set; }
+        [Required]
         public string Director { get; set; }
+        [Required]
         public string Rating { get; set; }
         public bool Edited { get; set; }
+        public string Lentto { get; set; }
+        [Range(0,25)]
+        public string Notes { get; set; }
+
+        //Build Forgein Key relationship
+        public int CategoryID { get; set; }
+        public Category Category { get; set; }
 
 
     }
